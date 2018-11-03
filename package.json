@@ -1,0 +1,26 @@
+{
+  "name": "news-aggregator-nodejs-server",
+  "version": "1.0.0",
+  "description": "nodejs express websocket server to pipe data to client front end",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ejdweck/news-aggregator-nodejs-server.git"
+  },
+  "author": "Evan Dweck",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ejdweck/news-aggregator-nodejs-server/issues"
+  },
+  "homepage": "https://github.com/ejdweck/news-aggregator-nodejs-server#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "socket.io": "^2.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.5"
+  }
+}
