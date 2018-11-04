@@ -18,6 +18,8 @@
   "homepage": "https://github.com/ejdweck/news-aggregator-nodejs-server#readme",
   "dependencies": {
     "express": "^4.16.4",
+    "newsapi": "^2.4.0",
+    "redis": "^2.8.0",
     "socket.io": "^2.1.1"
   },
   "devDependencies": {
