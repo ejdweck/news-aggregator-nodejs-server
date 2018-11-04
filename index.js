@@ -2,6 +2,7 @@ const express = require('express');
 const socket = require('socket.io');
 const callNewsApi = require('./src/helpers/newsApi');
 const sentimentAnalysis = require('./src/helpers/sentimentAnalysis');
+const pdSentimentAnalysis = require('./src/helpers/parallelDots');
 const redis = require('redis');
 
 // create redis client
@@ -33,8 +34,9 @@ io.on('connection', function(socket){
       .then((response)=> {
         let responseJson = JSON.parse(response);
         sentimentAnalysis(responseJson)
+        //pdSentimentAnalysis(responseJson)
           .then((response) =>{
-            console.log(typeof response)
+            //console.log(typeof response)
             client.set(clientId, response, function(err, reply) {
               if (err) {
                 console.log(err);
@@ -53,6 +55,13 @@ io.on('connection', function(socket){
       }
       //console.log(reply);
       socket.emit('query-finished', reply)
+      client.del(clientId, function(err, response) {
+        if (response == 1) {
+           console.log("Deleted Successfully!")
+        } else{
+         console.log("Cannot delete")
+        }
+     })
     });
   })
 })

@@ -17,8 +17,10 @@
   },
   "homepage": "https://github.com/ejdweck/news-aggregator-nodejs-server#readme",
   "dependencies": {
+    "Sentimental": "^1.0.1",
     "express": "^4.16.4",
     "newsapi": "^2.4.0",
+    "paralleldots": "^3.2.2",
     "redis": "^2.8.0",
     "sentiment": "^5.0.1",
     "socket.io": "^2.1.1"
