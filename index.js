@@ -1,8 +1,8 @@
-var express = require('express');
-var socket = require('socket.io');
-let callNewsApi = require('./src/helpers/newsApi');
-//import { callNewsApi } from './src/helpers/newsApi';
-let redis = require('redis');
+const express = require('express');
+const socket = require('socket.io');
+const callNewsApi = require('./src/helpers/newsApi');
+const sentimentAnalysis = require('./src/helpers/sentimentAnalysis');
+const redis = require('redis');
 
 // create redis client
 let client = redis.createClient();
@@ -26,29 +26,32 @@ io.on('connection', function(socket){
   let clientId = socket.id.toString();
   let data = {}
   
-  // when a user submits a query, call the api and return the data back
+  // when a user submits a query, call the news api, perform analysis and store in redis cache
   socket.on('query-news-api', function(data) {
     console.log('message recieved w/ data', data);
     callNewsApi(data.content.sources, data.content.query)
       .then((response)=> {
-        console.log('AFTER PROMISE IN THEN', response);
-        client.set(clientId, response, function(err, reply) {
-          if (err) {
-            console.log(err);
-          }
-          console.log(reply);
-        });
-        socket.emit('job-recieved', {})
+        let responseJson = JSON.parse(response);
+        sentimentAnalysis(responseJson)
+          .then((response) =>{
+            console.log(typeof response)
+            client.set(clientId, response, function(err, reply) {
+              if (err) {
+                console.log(err);
+              }
+              console.log(reply);
+            });
+          })
       })
   })
-
+  // when client polls, send back an update.  
   socket.on('query-update', function(data) {
     console.log('client checking if api call is done', clientId);
     client.get(clientId, function(err, reply) {
       if (err) {
         console.log(err);
       }
-      console.log(reply);
+      //console.log(reply);
       socket.emit('query-finished', reply)
     });
   })
