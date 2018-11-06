@@ -3,16 +3,31 @@ var analyze = require('Sentimental').analyze,
     negativity = require('Sentimental').negativity;
 
 r = analyze("RNC chair declines to address racist campaign video - CNN Video"); //Score: -4, Comparative: -1
-console.log(r);
+//console.log(r);
 
 r = analyze("GA Sec. of State's office launching investigation after alleged failed hacking attempt of voter registration system"); //Score: -4, Comparative: -1
-console.log(r);
+//console.log(r);
 
 r = analyze("Abrams: Trump is 'wrong,' I am qualified to be Georgia's governor");
-console.log(r);
+//console.log(r);
 
 r = analyze("Trump is trying to whip up fear about the browning of America");
-console.log(r);
+//console.log(r);
 
 r = analyze("ABC journalist says Alec Baldwin once told her: ‘I hope you choke to death’");
-console.log(r);
+//console.log(r);
+
+var Sentiment = require('sentiment');
+var sentiment = new Sentiment();
+
+let noQuotes = "Abrams: Trump is wrong, I am qualified to be Georgia's governor";
+let singleQuotes = "Abrams: Trump is \'wrong\', I am qualified to be Georgia's governor";
+let doubleQuotes = "Abrams: Trump is \"wrong,\" I am qualified to be Georgia's governor"
+
+let noQuotesResult = sentiment.analyze(noQuotes);
+var doubleQuotesResult = sentiment.analyze(doubleQuotes);
+var singleQuotesResult = sentiment.analyze(singleQuotes);
+
+console.log(noQuotesResult);
+console.log(doubleQuotesResult);
+console.log(singleQuotesResult);
