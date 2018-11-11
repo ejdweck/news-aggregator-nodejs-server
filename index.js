@@ -15,7 +15,8 @@ client.on('connect', function(){
 
 // Application Setup
 var app = express();
-var server = app.listen(8080, function() {
+let port = process.env.PORT || 8080
+var server = app.listen(port, function() {
   console.log('listening to requests on port 8080!')
 })
 
@@ -25,8 +26,6 @@ var io = socket(server);
 io.on('connection', function(socket){
   console.log('Client Connected: ', socket.id)
   let clientId = socket.id.toString();
-  let data = {}
-  
   // when a user submits a query, call the news api, perform analysis and store in redis cache
   socket.on('query-news-api', function(data) {
     console.log('message recieved w/ data', data);
@@ -43,25 +42,29 @@ io.on('connection', function(socket){
               }
               console.log(reply);
             });
-          })
-      })
-  })
+          });
+      });
+  });
   // when client polls, send back an update.  
   socket.on('query-update', function(data) {
     console.log('client checking if api call is done', clientId);
-    client.get(clientId, function(err, reply) {
+    client.get(clientId, function(err, data) {
       if (err) {
         console.log(err);
       }
-      //console.log(reply);
-      socket.emit('query-finished', reply)
+
+      // hack fix for null bug
+      if (data === null) {
+        data = [];
+      }
+      socket.emit('query-finished', data)
       client.del(clientId, function(err, response) {
         if (response == 1) {
            console.log("Deleted Successfully!")
         } else{
          console.log("Cannot delete")
         }
-     })
+      });
     });
-  })
-})
+  });
+});

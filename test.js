@@ -1,33 +1,42 @@
-var analyze = require('Sentimental').analyze,
-    positivity = require('Sentimental').positivity,
-    negativity = require('Sentimental').negativity;
+//var os = require('os');
+var should = require("chai").should();
+var socketio_client = require('socket.io-client');
 
-r = analyze("RNC chair declines to address racist campaign video - CNN Video"); //Score: -4, Comparative: -1
-//console.log(r);
+//var end_point = 'http://' + os.hostname() + ':8080';
+var end_point = 'http://localhost:8080';
+var opts = {forceNew: true};
 
-r = analyze("GA Sec. of State's office launching investigation after alleged failed hacking attempt of voter registration system"); //Score: -4, Comparative: -1
-//console.log(r);
+describe("async test with socket.io", function () {
+this.timeout(10000);
 
-r = analyze("Abrams: Trump is 'wrong,' I am qualified to be Georgia's governor");
-//console.log(r);
+it('Response should be an non empty string that will then be parsed to json', function (done) {
+    setTimeout(function () {
+        var socket_client = socketio_client(end_point, opts);  
+        let data = {
+          content: {
+            sources: ['fox-news'],
+            query: 'trump'
+          },
+        }
+        socket_client.emit('query-news-api', data);
+        
+        let interval = setInterval(() => {
+          socket_client.emit('query-update', {});
+        }, 100);
+        // when server responds with query finished, stop the polling,
+        // and parse the response data and store in state
+        socket_client.on('query-finished', (data) => {
+          clearInterval(interval);
+          data.should.be.an('string');
+          socket_client.disconnect();
+          done();
+        });
 
-r = analyze("Trump is trying to whip up fear about the browning of America");
-//console.log(r);
-
-r = analyze("ABC journalist says Alec Baldwin once told her: ‘I hope you choke to death’");
-//console.log(r);
-
-var Sentiment = require('sentiment');
-var sentiment = new Sentiment();
-
-let noQuotes = "Abrams: Trump is wrong, I am qualified to be Georgia's governor";
-let singleQuotes = "Abrams: Trump is \'wrong\', I am qualified to be Georgia's governor";
-let doubleQuotes = "Abrams: Trump is \"wrong,\" I am qualified to be Georgia's governor"
-
-let noQuotesResult = sentiment.analyze(noQuotes);
-var doubleQuotesResult = sentiment.analyze(doubleQuotes);
-var singleQuotesResult = sentiment.analyze(singleQuotes);
-
-console.log(noQuotesResult);
-console.log(doubleQuotesResult);
-console.log(singleQuotesResult);
+        socket_client.on('event response error', function (data) {
+            console.error(data);
+            socket_client.disconnect();
+            done();
+            });
+        }, 4000);
+    });
+});
