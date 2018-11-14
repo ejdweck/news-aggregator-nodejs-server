@@ -15,7 +15,7 @@ client.on('connect', function(){
 
 // Application Setup
 var app = express();
-let port = process.env.PORT || 8080
+let port = process.env.PORT || 8080;
 var server = app.listen(port, function() {
   console.log('listening to requests on port 8080!')
 })
@@ -39,8 +39,9 @@ io.on('connection', function(socket){
             client.set(clientId, response, function(err, reply) {
               if (err) {
                 console.log(err);
+              } else {
+                console.log('data stored: ' , reply);
               }
-              console.log(reply);
             });
           });
       });
@@ -52,19 +53,24 @@ io.on('connection', function(socket){
       if (err) {
         console.log(err);
       }
-
+      // see the extra poll requests that make it before the client stops polling
+      console.log("DATA FROMR EDIS: ", data)
+      //console.log(data == null);
       // hack fix for null bug
       if (data === null) {
-        data = [];
+        console.log('data is null');
+      } else {
+        // send data to client
+        socket.emit('query-finished', data)
+        // delete job from cache
+        client.del(clientId, function(err, response) {
+          if (response == 1) {
+            console.log("Deleted Successfully!")
+          } else{
+          console.log("Cannot delete")
+          }
+        });
       }
-      socket.emit('query-finished', data)
-      client.del(clientId, function(err, response) {
-        if (response == 1) {
-           console.log("Deleted Successfully!")
-        } else{
-         console.log("Cannot delete")
-        }
-      });
     });
   });
 });
